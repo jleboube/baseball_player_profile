@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baseball Player Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #1f4e79, #2563eb);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .player-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .player-photo {
+            width: 250px;
+            height: 320px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 4px solid rgba(255,255,255,0.2);
+        }
+
+        .player-info h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .player-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .player-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .detail-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .detail-label {
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            padding: 80px 20px;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1f4e79;
+            margin-bottom: 60px;
+        }
+
+        .stats-category {
+            margin-bottom: 60px;
+        }
+
+        .category-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #c41e3a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 2px solid #f0f0f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f4e79;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* Media Section */
+        .media-section {
+            padding: 80px 20px;
+            background: #f8f9fa;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .media-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .media-card:hover {
+            transform: translateY(-10px);
+        }
+
+        /* OPTION 1: Native Resolution Media */
+        .media-image, .media-video {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .media-info {
+            padding: 20px;
+        }
+
+        .media-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f4e79;
+        }
+
+        /* Admin Controls */
+        .admin-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        .admin-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 3000;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #1f4e79;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .admin-nav button {
+            background: #374151;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .admin-nav button.active {
+            background: #2563eb;
+        }
+
+        .admin-nav button:hover {
+            background: #4b5563;
+        }
+
+        .admin-nav button.active:hover {
+            background: #1d4ed8;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-left: auto;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .player-card {
+                flex-direction: row;
+                text-align: left;
+            }
+
+            .player-info {
+                flex: 1;
+            }
+
+            .player-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* File Upload Styles */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 12px;
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover .file-upload-label {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+
+        /* Color Picker Styles */
+        .color-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading indicator -->
+    <div class="loading" id="loadingIndicator">Loading...</div>
+
+    <!-- Admin Button -->
+    <button class="admin-button" onclick="showLoginModal()">⚙️ Admin</button>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                <div class="admin-nav">
+                    <button onclick="showSection('profile')" class="active" id="nav-profile">View Profile</button>
+                    <button onclick="showSection('edit-info')" id="nav-edit-info">Edit Info</button>
+                    <button onclick="showSection('edit-stats')" id="nav-edit-stats">Edit Stats</button>
+                    <button onclick="showSection('media')" id="nav-media">Media</button>
+                    <button onclick="showSection('theme')" id="nav-theme">Theme</button>
+                </div>
+                <div class="admin-actions">
+                    <button class="btn btn-success" onclick="saveData()">💾 Save</button>
+                    <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent">
+        <!-- Header Section -->
+        <header class="header" id="headerSection">
+            <div class="container">
+                <div class="player-card">
+                    <img src="https://via.placeholder.com/300x400/1f4e79/ffffff?text=Player+Photo" alt="Player Photo" class="player-photo" id="playerPhoto">
+                    <div class="player-info">
+                        <h1 id="playerName">Loading...</h1>
+                        <p class="player-subtitle">
+                            #<span id="playerNumber">--</span> • 
+                            <span id="playerPosition">--</span> • 
+                            <span id="playerTeam">--</span>
+                        </p>
+                        <div class="player-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Height</div>
+                                <div id="playerHeight">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Weight</div>
+                                <div id="playerWeight">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Born</div>
+                                <div id="playerBirthDate">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Hometown</div>
+                                <div id="playerHometown">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Bats</div>
+                                <div id="playerBats">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Throws</div>
+                                <div id="playerThrows">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <div class="container">
+                <h2 class="section-title">Statistics</h2>
+                
+                <!-- Batting Stats -->
+                <div class="stats-category">
+                    <h3 class="category-title">Batting</h3>
+                    <div class="stats-grid" id="battingStatsGrid">
+                        <!-- Batting stats will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Pitching Stats -->
+                <div class="stats-category" id="pitchingSection" style="display: none;">
+                    <h3 class="category-title">Pitching</h3>
+                    <div class="stats-grid" id="pitchingStatsGrid">
+                        <!-- Pitching stats will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Fielding Stats -->
+                <div class="stats-category">
+                    <h3 class="category-title">Fielding</h3>
+                    <div class="stats-grid" id="fieldingStatsGrid">
+                        <!-- Fielding stats will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Media Sections -->
+        <section class="media-section" id="sprayChartsSection" style="display: none;">
+            <div class="container">
+                <h2 class="section-title">Spray Charts</h2>
+                <div class="media-grid" id="sprayChartsGrid">
+                    <!-- Spray charts will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section class="media-section" id="hypeVideosSection" style="display: none;">
+            <div class="container">
+                <h2 class="section-title">Hype Videos</h2>
+                <div class="media-grid" id="hypeVideosGrid">
+                    <!-- Hype videos will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="loginTitle">Admin Login</h2>
+            
+            <div class="form-group" id="regCodeGroup" style="display: none;">
+                <label class="form-label">Registration Code</label>
+                <input type="text" class="form-input" id="regCode" placeholder="Enter registration code">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="email" placeholder="Enter email">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="password" placeholder="Enter password">
+            </div>
+            
+            <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm password">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="closeLoginModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="handleAuth()" id="authButton">Login</button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;" id="registerLink">
+                <button style="background: none; border: none; color: #2563eb; text-decoration: underline; cursor: pointer;" onclick="showRegisterForm()">Register first admin account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Forms (Hidden by default) -->
+    <div id="editForms" style="display: none;">
+        <!-- These will be shown when admin is logged in -->
+    </div>
+
+    <script>
+        // Application State
+        let appState = {
+            isAuthenticated: false,
+            currentSection: 'profile',
+            isRegistering: false,
+            adminExists: false,
+            playerData: {},
+            battingStats: {},
+            pitchingStats: {},
+            fieldingStats: {},
+            sprayCharts: [],
+            hypeVideos: [],
+            theme: {}
+        };
+
+        // API Helper functions
+        async function apiCall(url, options = {}) {
+            try {
+                showLoading();
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('API call failed:', error);
+                alert('Network error. Please check your connection and try again.');
+                throw error;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').classList.remove('active');
+        }
+
+        // Initialize app
+        async function init() {
+            await loadData();
+            await checkAuth();
+            updateDisplay();
+        }
+
+        // Load data from server
+        async function loadData() {
+            try {
+                const data = await apiCall('/api/data');
+                appState = { ...appState, ...data };
+                console.log('Loaded data:', appState); // Debug log
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        // Save data to server
+        async function saveData() {
+            try {
+                const dataToSave = {
+                    playerData: appState.playerData,
+                    battingStats: appState.battingStats,
+                    pitchingStats: appState.pitchingStats,
+                    fieldingStats: appState.fieldingStats,
+                    sprayCharts: appState.sprayCharts,
+                    hypeVideos: appState.hypeVideos,
+                    theme: appState.theme
+                };
+                
+                const result = await apiCall('/api/data', {
+                    method: 'POST',
+                    body: JSON.stringify(dataToSave)
+                });
+                
+                alert('Data saved successfully! All visitors will now see the updated information.');
+            } catch (error) {
+                console.error('Failed to save data:', error);
+                alert('Failed to save data. Please try again.');
+            }
+        }
+
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const auth = await apiCall('/api/auth');
+                appState.adminExists = auth.adminExists;
+                
+                // Check if user was previously authenticated (using sessionStorage for this session only)
+                const wasAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
+                if (wasAuthenticated) {
+                    appState.isAuthenticated = true;
+                    showAdminPanel();
+                }
+                
+                const registerLink = document.getElementById('registerLink');
+                if (registerLink) {
+                    registerLink.style.display = appState.adminExists ? 'none' : 'block';
+                }
+            } catch (error) {
+                console.error('Failed to check auth:', error);
+            }
+        }
+
+        // Authentication functions
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            resetLoginForm();
+        }
+
+        function showRegisterForm() {
+            appState.isRegistering = true;
+            document.getElementById('loginTitle').textContent = 'Register Admin';
+            document.getElementById('regCodeGroup').style.display = 'block';
+            document.getElementById('confirmPasswordGroup').style.display = 'block';
+            document.getElementById('authButton').textContent = 'Register';
+            document.getElementById('registerLink').style.display = 'none';
+        }
+
+        function resetLoginForm() {
+            appState.isRegistering = false;
+            document.getElementById('loginTitle').textContent = 'Admin Login';
+            document.getElementById('regCodeGroup').style.display = 'none';
+            document.getElementById('confirmPasswordGroup').style.display = 'none';
+            document.getElementById('authButton').textContent = 'Login';
+            
+            const registerLink = document.getElementById('registerLink');
+            if (registerLink) {
+                registerLink.style.display = appState.adminExists ? 'none' : 'block';
+            }
+            
+            // Clear form
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('regCode').value = '';
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (appState.isRegistering) {
+                const regCode = document.getElementById('regCode').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (regCode !== 'BASEBALL2025') {
+                    alert('Invalid registration code');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match');
+                    return;
+                }
+                
+                if (!email || !password) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                
+                try {
+                    await apiCall('/api/auth/register', {
+                        method: 'POST',
+                        body: JSON.stringify({ email, password, registrationCode: regCode })
+                    });
+                    
+                    appState.isAuthenticated = true;
+                    appState.adminExists = true;
+                    sessionStorage.setItem('isAuthenticated', 'true');
+                    closeLoginModal();
+                    showAdminPanel();
+                    alert('Admin account created successfully!');
+                } catch (error) {
+                    alert('Registration failed. Please try again.');
+                }
+            } else {
+                if (!email || !password) {
+                    alert('Please enter email and password');
+                    return;
+                }
+                
+                try {
+                    await apiCall('/api/auth/login', {
+                        method: 'POST',
+                        body: JSON.stringify({ email, password })
+                    });
+                    
+                    appState.isAuthenticated = true;
+                    sessionStorage.setItem('isAuthenticated', 'true');
+                    closeLoginModal();
+                    showAdminPanel();
+                } catch (error) {
+                    alert('Invalid credentials');
+                }
+            }
+        }
+
+        function logout() {
+            appState.isAuthenticated = false;
+            sessionStorage.removeItem('isAuthenticated');
+            hideAdminPanel();
+        }
+
+        function showAdminPanel() {
+            document.getElementById('adminPanel').classList.add('active');
+        }
+
+        function hideAdminPanel() {
+            document.getElementById('adminPanel').classList.remove('active');
+            showSection('profile');
+        }
+
+        // Section navigation
+        function showSection(section) {
+            appState.currentSection = section;
+            
+            // Update nav buttons
+            document.querySelectorAll('.admin-nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`nav-${section}`).classList.add('active');
+            
+            // Hide all sections, show main content for profile
+            if (section === 'profile') {
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('editForms').style.display = 'none';
+            } else {
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('editForms').style.display = 'block';
+                showEditForm(section);
+            }
+        }
+
+        function showEditForm(section) {
+            const editForms = document.getElementById('editForms');
+            
+            switch(section) {
+                case 'edit-info':
+                    editForms.innerHTML = createPlayerInfoForm();
+                    break;
+                case 'edit-stats':
+                    editForms.innerHTML = createStatsForm();
+                    break;
+                case 'media':
+                    editForms.innerHTML = createMediaForm();
+                    break;
+                case 'theme':
+                    editForms.innerHTML = createThemeForm();
+                    break;
+            }
+        }
+
+        // Form creators - ENSURING NAME EDITING WORKS
+        function createPlayerInfoForm() {
+            return `
+                <div style="padding: 40px; background: white; min-height: 100vh;">
+                    <h2 style="font-size: 2rem; margin-bottom: 30px; color: #1f4e79;">Edit Player Information</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div style="grid-column: 1 / -1;">
+                            <label class="form-label">Profile Photo</label>
+                            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                                <img src="${appState.playerData.profilePhoto || ''}" alt="Current Photo" style="width: 100px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;">
+                                <div style="flex: 1;">
+                                    <div class="file-upload" style="margin-bottom: 10px;">
+                                        <input type="file" accept="image/*" onchange="handleProfilePhotoUpload(this)">
+                                        <label class="file-upload-label">📷 Upload New Profile Photo</label>
+                                    </div>
+                                    <div style="font-size: 0.9rem; color: #666;">Or enter URL:</div>
+                                    <input type="text" class="form-input" id="edit-profilePhoto" value="${appState.playerData.profilePhoto || ''}" onchange="updatePlayerData('profilePhoto', this.value)" placeholder="Enter image URL">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">🏷️ Player Name (EDITABLE)</label>
+                            <input type="text" class="form-input" id="edit-name" value="${appState.playerData.name || ''}" oninput="updatePlayerData('name', this.value)" onchange="updatePlayerData('name', this.value)" placeholder="Enter player name" style="border: 2px solid #22c55e;">
+                            <small style="color: #059669; font-weight: bold;">✓ This field updates the name on the profile page</small>
+                        </div>
+                        <div>
+                            <label class="form-label">Position</label>
+                            <input type="text" class="form-input" id="edit-position" value="${appState.playerData.position || ''}" oninput="updatePlayerData('position', this.value)" placeholder="e.g., CF, 1B, P">
+                        </div>
+                        <div>
+                            <label class="form-label">Team</label>
+                            <input type="text" class="form-input" id="edit-team" value="${appState.playerData.team || ''}" oninput="updatePlayerData('team', this.value)" placeholder="Enter team name">
+                        </div>
+                        <div>
+                            <label class="form-label">Jersey Number</label>
+                            <input type="text" class="form-input" id="edit-number" value="${appState.playerData.number || ''}" oninput="updatePlayerData('number', this.value)" placeholder="Jersey number">
+                        </div>
+                        <div>
+                            <label class="form-label">Height</label>
+                            <input type="text" class="form-input" id="edit-height" value="${appState.playerData.height || ''}" oninput="updatePlayerData('height', this.value)" placeholder="e.g., 6'2\"">
+                        </div>
+                        <div>
+                            <label class="form-label">Weight</label>
+                            <input type="text" class="form-input" id="edit-weight" value="${appState.playerData.weight || ''}" oninput="updatePlayerData('weight', this.value)" placeholder="e.g., 235 lbs">
+                        </div>
+                        <div>
+                            <label class="form-label">Birth Date</label>
+                            <input type="text" class="form-input" id="edit-birthDate" value="${appState.playerData.birthDate || ''}" oninput="updatePlayerData('birthDate', this.value)" placeholder="e.g., August 7, 1991">
+                        </div>
+                        <div>
+                            <label class="form-label">Hometown</label>
+                            <input type="text" class="form-input" id="edit-hometown" value="${appState.playerData.hometown || ''}" oninput="updatePlayerData('hometown', this.value)" placeholder="City, State">
+                        </div>
+                        <div>
+                            <label class="form-label">Bats</label>
+                            <input type="text" class="form-input" id="edit-bats" value="${appState.playerData.bats || ''}" oninput="updatePlayerData('bats', this.value)" placeholder="L, R, or S">
+                        </div>
+                        <div>
+                            <label class="form-label">Throws</label>
+                            <input type="text" class="form-input" id="edit-throws" value="${appState.playerData.throws || ''}" oninput="updatePlayerData('throws', this.value)" placeholder="L or R">
+                        </div>
+                    </div>
+                    <div style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #2563eb;">
+                        <p style="margin: 0; color: #1e40af; font-weight: 600;">💡 Changes are updated instantly as you type. Click "Save" in the top menu to permanently save to the server for all visitors!</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createStatsForm() {
+            const battingStatsHtml = Object.entries(appState.battingStats).map(([key, value]) => 
+                `<div>
+                    <label class="form-label">${formatLabel(key)}</label>
+                    <input type="text" class="form-input" value="${value || ''}" oninput="updateBattingStats('${key}', this.value)" placeholder="Enter ${formatLabel(key).toLowerCase()}">
+                </div>`
+            ).join('');
+
+            const pitchingStatsHtml = Object.entries(appState.pitchingStats).map(([key, value]) => 
+                `<div>
+                    <label class="form-label">${formatLabel(key)}</label>
+                    <input type="text" class="form-input" value="${value || ''}" oninput="updatePitchingStats('${key}', this.value)" placeholder="Enter ${formatLabel(key).toLowerCase()}">
+                </div>`
+            ).join('');
+
+            const fieldingStatsHtml = Object.entries(appState.fieldingStats).map(([key, value]) => 
+                `<div>
+                    <label class="form-label">${formatLabel(key)}</label>
+                    <input type="text" class="form-input" value="${value || ''}" oninput="updateFieldingStats('${key}', this.value)" placeholder="Enter ${formatLabel(key).toLowerCase()}">
+                </div>`
+            ).join('');
+
+            return `
+                <div style="padding: 40px; background: white; min-height: 100vh;">
+                    <h2 style="font-size: 2rem; margin-bottom: 30px; color: #1f4e79;">Edit Statistics</h2>
+                    
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #c41e3a;">Batting Statistics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            ${battingStatsHtml}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #c41e3a;">Pitching Statistics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            ${pitchingStatsHtml}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #c41e3a;">Fielding Statistics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            ${fieldingStatsHtml}
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #2563eb;">
+                        <p style="margin: 0; color: #1e40af; font-weight: 600;">📊 Statistics update in real-time as you type and are saved to the server when you click "Save".</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createMediaForm() {
+            const chartsHtml = appState.sprayCharts.map(chart => 
+                `<div class="media-card">
+                    <img src="${chart.url}" alt="${chart.name}" class="media-image">
+                    <div class="media-info">
+                        <div class="media-title">${chart.name}</div>
+                        <button class="btn btn-danger" style="margin-top: 10px;" onclick="deleteSprayChart(${chart.id})">Delete</button>
+                    </div>
+                </div>`
+            ).join('');
+
+            const videosHtml = appState.hypeVideos.map(video => 
+                `<div class="media-card">
+                    <video src="${video.url}" controls class="media-video"></video>
+                    <div class="media-info">
+                        <div class="media-title">${video.name}</div>
+                        <button class="btn btn-danger" style="margin-top: 10px;" onclick="deleteHypeVideo(${video.id})">Delete</button>
+                    </div>
+                </div>`
+            ).join('');
+
+            return `
+                <div style="padding: 40px; background: white; min-height: 100vh;">
+                    <h2 style="font-size: 2rem; margin-bottom: 30px; color: #1f4e79;">Media Management</h2>
+                    
+                    <div style="margin-bottom: 60px;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #c41e3a;">Spray Charts</h3>
+                        <div class="file-upload" style="margin-bottom: 20px;">
+                            <input type="file" accept="image/*" onchange="handleImageUpload(this)">
+                            <label class="file-upload-label">📷 Upload Spray Chart Image</label>
+                        </div>
+                        <div class="media-grid">
+                            ${chartsHtml}
+                        </div>
+                        ${appState.sprayCharts.length === 0 ? '<p style="color: #666; text-align: center; margin-top: 20px;">No spray charts uploaded yet. Upload your first spray chart above!</p>' : ''}
+                    </div>
+
+                    <div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #c41e3a;">Hype Videos</h3>
+                        <div class="file-upload" style="margin-bottom: 20px;">
+                            <input type="file" accept="video/*" onchange="handleVideoUpload(this)">
+                            <label class="file-upload-label">🎥 Upload Hype Video</label>
+                        </div>
+                        <div class="media-grid">
+                            ${videosHtml}
+                        </div>
+                        ${appState.hypeVideos.length === 0 ? '<p style="color: #666; text-align: center; margin-top: 20px;">No hype videos uploaded yet. Upload your first video above!</p>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function createThemeForm() {
+            return `
+                <div style="padding: 40px; background: white; min-height: 100vh;">
+                    <h2 style="font-size: 2rem; margin-bottom: 30px; color: #1f4e79;">Theme Customization</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                        ${Object.entries(appState.theme).map(([key, value]) => 
+                            `<div>
+                                <label class="form-label">${formatLabel(key)}</label>
+                                <div class="color-group">
+                                    <input type="color" value="${value || '#000000'}" class="color-preview" onchange="updateTheme('${key}', this.value)">
+                                    <input type="text" class="form-input" value="${value || ''}" onchange="updateTheme('${key}', this.value)" placeholder="Enter color code">
+                                </div>
+                            </div>`
+                        ).join('')}
+                    </div>
+                    <div style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #2563eb;">
+                        <p style="margin: 0; color: #1e40af; font-weight: 600;">🎨 Theme colors are applied instantly and saved to the server.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update functions - ENSURING NAME WORKS
+        function updatePlayerData(key, value) {
+            console.log(`Updating ${key} to: "${value}"`); // Debug log
+            appState.playerData[key] = value;
+            updateDisplay();
+            
+            // Special handling for name to ensure it updates immediately
+            if (key === 'name') {
+                const nameElement = document.getElementById('playerName');
+                if (nameElement) {
+                    nameElement.textContent = value || 'Loading...';
+                    console.log('Name updated in DOM to:', value); // Debug log
+                }
+            }
+        }
+
+        function updateBattingStats(key, value) {
+            appState.battingStats[key] = value;
+            updateDisplay();
+        }
+
+        function updatePitchingStats(key, value) {
+            appState.pitchingStats[key] = value;
+            updateDisplay();
+        }
+
+        function updateFieldingStats(key, value) {
+            appState.fieldingStats[key] = value;
+            updateDisplay();
+        }
+
+        function updateTheme(key, value) {
+            appState.theme[key] = value;
+            applyTheme();
+        }
+
+        // Media functions
+        function handleImageUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newChart = {
+                        id: Date.now(),
+                        name: file.name,
+                        url: e.target.result
+                    };
+                    appState.sprayCharts.push(newChart);
+                    showEditForm('media');
+                    updateDisplay();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleVideoUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newVideo = {
+                        id: Date.now(),
+                        name: file.name,
+                        url: e.target.result
+                    };
+                    appState.hypeVideos.push(newVideo);
+                    showEditForm('media');
+                    updateDisplay();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleProfilePhotoUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appState.playerData.profilePhoto = e.target.result;
+                    updateDisplay();
+                    // Refresh the edit form to show the new photo
+                    showEditForm('edit-info');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function deleteSprayChart(id) {
+            appState.sprayCharts = appState.sprayCharts.filter(chart => chart.id !== id);
+            showEditForm('media');
+            updateDisplay();
+        }
+
+        function deleteHypeVideo(id) {
+            appState.hypeVideos = appState.hypeVideos.filter(video => video.id !== id);
+            showEditForm('media');
+            updateDisplay();
+        }
+
+        // Display functions
+        function updateDisplay() {
+            updatePlayerInfo();
+            updateStats();
+            updateMediaSections();
+            applyTheme();
+        }
+
+        function updatePlayerInfo() {
+            // Update all player info elements with extra logging for name
+            const nameElement = document.getElementById('playerName');
+            if (nameElement) {
+                nameElement.textContent = appState.playerData.name || 'Loading...';
+                console.log('Display updated - Name is now:', nameElement.textContent); // Debug log
+            }
+            
+            const numberElement = document.getElementById('playerNumber');
+            if (numberElement) numberElement.textContent = appState.playerData.number || '--';
+            
+            const positionElement = document.getElementById('playerPosition');
+            if (positionElement) positionElement.textContent = appState.playerData.position || '--';
+            
+            const teamElement = document.getElementById('playerTeam');
+            if (teamElement) teamElement.textContent = appState.playerData.team || '--';
+            
+            const heightElement = document.getElementById('playerHeight');
+            if (heightElement) heightElement.textContent = appState.playerData.height || '--';
+            
+            const weightElement = document.getElementById('playerWeight');
+            if (weightElement) weightElement.textContent = appState.playerData.weight || '--';
+            
+            const birthDateElement = document.getElementById('playerBirthDate');
+            if (birthDateElement) birthDateElement.textContent = appState.playerData.birthDate || '--';
+            
+            const hometownElement = document.getElementById('playerHometown');
+            if (hometownElement) hometownElement.textContent = appState.playerData.hometown || '--';
+            
+            const batsElement = document.getElementById('playerBats');
+            if (batsElement) batsElement.textContent = appState.playerData.bats || '--';
+            
+            const throwsElement = document.getElementById('playerThrows');
+            if (throwsElement) throwsElement.textContent = appState.playerData.throws || '--';
+            
+            const photoElement = document.getElementById('playerPhoto');
+            if (photoElement && appState.playerData.profilePhoto) {
+                photoElement.src = appState.playerData.profilePhoto;
+            }
+        }
+
+        function updateStats() {
+            updateStatsGrid('battingStatsGrid', appState.battingStats);
+            updateStatsGrid('pitchingStatsGrid', appState.pitchingStats);
+            updateStatsGrid('fieldingStatsGrid', appState.fieldingStats);
+            
+            // Show/hide pitching section based on if player has pitching stats
+            const hasPitchingStats = Object.values(appState.pitchingStats).some(val => val !== 0 && val !== '0.0' && val !== '0.00');
+            const pitchingSection = document.getElementById('pitchingSection');
+            if (pitchingSection) {
+                pitchingSection.style.display = hasPitchingStats ? 'block' : 'none';
+            }
+        }
+
+        function updateStatsGrid(gridId, stats) {
+            const grid = document.getElementById(gridId);
+            if (grid && stats) {
+                grid.innerHTML = Object.entries(stats).map(([key, value]) => 
+                    `<div class="stat-card">
+                        <div class="stat-value">${value || '0'}</div>
+                        <div class="stat-label">${formatLabel(key)}</div>
+                    </div>`
+                ).join('');
+            }
+        }
+
+        function updateMediaSections() {
+            // Update spray charts
+            const sprayChartsSection = document.getElementById('sprayChartsSection');
+            const sprayChartsGrid = document.getElementById('sprayChartsGrid');
+            
+            if (appState.sprayCharts && appState.sprayCharts.length > 0) {
+                if (sprayChartsSection) sprayChartsSection.style.display = 'block';
+                if (sprayChartsGrid) {
+                    sprayChartsGrid.innerHTML = appState.sprayCharts.map(chart => 
+                        `<div class="media-card">
+                            <img src="${chart.url}" alt="${chart.name}" class="media-image">
+                            <div class="media-info">
+                                <div class="media-title">${chart.name}</div>
+                            </div>
+                        </div>`
+                    ).join('');
+                }
+            } else {
+                if (sprayChartsSection) sprayChartsSection.style.display = 'none';
+            }
+            
+            // Update hype videos
+            const hypeVideosSection = document.getElementById('hypeVideosSection');
+            const hypeVideosGrid = document.getElementById('hypeVideosGrid');
+            
+            if (appState.hypeVideos && appState.hypeVideos.length > 0) {
+                if (hypeVideosSection) hypeVideosSection.style.display = 'block';
+                if (hypeVideosGrid) {
+                    hypeVideosGrid.innerHTML = appState.hypeVideos.map(video => 
+                        `<div class="media-card">
+                            <video src="${video.url}" controls class="media-video"></video>
+                            <div class="media-info">
+                                <div class="media-title">${video.name}</div>
+                            </div>
+                        </div>`
+                    ).join('');
+                }
+            } else {
+                if (hypeVideosSection) hypeVideosSection.style.display = 'none';
+            }
+        }
+
+        function applyTheme() {
+            const header = document.getElementById('headerSection');
+            if (header && appState.theme.primaryColor && appState.theme.secondaryColor) {
+                header.style.background = `linear-gradient(135deg, ${appState.theme.primaryColor}, ${appState.theme.secondaryColor})`;
+            }
+            
+            if (appState.theme.backgroundColor) {
+                document.body.style.backgroundColor = appState.theme.backgroundColor;
+            }
+            
+            // Update stat values color
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(element => {
+                if (appState.theme.primaryColor) {
+                    element.style.color = appState.theme.primaryColor;
+                }
+            });
+            
+            // Update section titles color
+            const sectionTitles = document.querySelectorAll('.section-title');
+            sectionTitles.forEach(element => {
+                if (appState.theme.primaryColor) {
+                    element.style.color = appState.theme.primaryColor;
+                }
+            });
+            
+            // Update category titles color
+            const categoryTitles = document.querySelectorAll('.category-title');
+            categoryTitles.forEach(element => {
+                if (appState.theme.secondaryColor) {
+                    element.style.color = appState.theme.secondaryColor;
+                }
+            });
+        }
+
+        // Utility functions
+        function formatLabel(key) {
+            return key.replace(/([A-Z])/g, ' $1').trim().replace(/^\w/, c => c.toUpperCase());
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
